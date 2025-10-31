@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080">
+    <title>Telegram Personal Assistant Bot - LLM-Powered</title>
+
+    <!-- Reveal.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/theme/black.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <style>
+        .reveal {
+            font-size: 32px;
+        }
+
+        .reveal h1 {
+            font-size: 3em;
+            text-transform: none;
+        }
+
+        .reveal h2 {
+            font-size: 2.5em;
+            text-transform: none;
+        }
+
+        .reveal h3 {
+            font-size: 2em;
+            text-transform: none;
+        }
+
+        /* Telegram Message Styles */
+        .telegram-chat {
+            background: #0e1621;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .telegram-message {
+            margin-bottom: 16px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .telegram-message.user {
+            justify-content: flex-end;
+        }
+
+        .telegram-bubble {
+            background: #2b5278;
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 70%;
+            color: white;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .telegram-message.user .telegram-bubble {
+            background: #4a9eff;
+        }
+
+        .telegram-message.bot .telegram-bubble {
+            background: #2b5278;
+        }
+
+        /* Architecture Diagram */
+        .arch-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            padding: 12px 20px;
+            margin: 8px auto;
+            color: white;
+            font-size: 0.75em;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .arch-box.highlight {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .arch-arrow {
+            text-align: center;
+            color: #4a9eff;
+            font-size: 2em;
+            margin: 8px 0;
+        }
+
+        .arch-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .arch-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .arch-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .arch-box-large {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            padding: 16px 32px;
+            color: white;
+            font-size: 0.8em;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            min-width: 260px;
+            text-align: center;
+        }
+
+        .arch-box-large.highlight {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-width: 300px;
+        }
+
+        .arch-box-small {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            padding: 14px 24px;
+            color: white;
+            font-size: 0.75em;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            text-align: center;
+            flex: 1;
+        }
+
+        /* Code Block */
+        .code-block {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.7em;
+            text-align: left;
+            margin: 20px auto;
+            max-width: 900px;
+        }
+
+        .code-comment {
+            color: #6a9955;
+        }
+
+        .code-string {
+            color: #ce9178;
+        }
+
+        .code-key {
+            color: #9cdcfe;
+        }
+
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: left;
+        }
+
+        .feature-card h4 {
+            font-size: 1.3em;
+            margin-bottom: 12px;
+            color: #4a9eff;
+        }
+
+        .feature-card ul {
+            list-style: none;
+            padding: 0;
+            font-size: 0.8em;
+        }
+
+        .feature-card li {
+            margin-bottom: 8px;
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .feature-card li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4a9eff;
+        }
+
+        /* Stats */
+        .stat-box {
+            display: inline-block;
+            background: linear-gradient(135deg, #2b7bb8 0%, #00a8b8 100%);
+            border-radius: 12px;
+            padding: 24px 32px;
+            margin: 12px;
+            min-width: 200px;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: rgba(255,255,255,0.8);
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- Slide 1: Title -->
+            <section>
+                <div class="flex flex-col items-center justify-center h-full">
+                    <i class="fab fa-telegram text-9xl mb-8" style="color: #4a9eff;"></i>
+                    <h1 class="mb-6">Telegram Personal Assistant Bot</h1>
+                    <h3 class="text-3xl" style="color: #4a9eff;">LLM-Powered Personal Management System</h3>
+                </div>
+            </section>
+
+            <!-- Slide 2: Project Goal -->
+            <section>
+                <h2 class="mb-8">專案目標</h2>
+                <div class="text-left max-w-4xl mx-auto">
+                    <p class="text-2xl mb-6" style="color: #4a9eff;">
+                        <i class="fas fa-robot mr-4"></i>
+                        開發一個基於 Telegram 的智能個人助理機器人
+                    </p>
+                    <div class="bg-white bg-opacity-10 rounded-lg p-8 text-xl leading-relaxed">
+                        <h3 class="text-3xl mb-6" style="color: #f5576c;">核心理念</h3>
+                        <p>
+                            傳統的個人管理工具需要用戶學習複雜的指令或操作介面。
+                            本專案利用 <span style="color: #4a9eff; font-weight: bold;">LLM 的強大語言理解能力</span>，
+                            讓用戶以最自然的方式與助理對話，就像與真人助理交流一樣。
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 3: Problems - Part 1 -->
+            <section>
+                <h2 class="mb-8">現有解決方案的局限性</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4><i class="fas fa-wallet mr-2"></i> 記帳應用程式</h4>
+                        <ul>
+                            <li>需要手動選擇類別</li>
+                            <li>介面複雜，記錄流程繁瑣</li>
+                            <li>類別固定，無法適應個人習慣</li>
+                            <li>需要多次點擊才能完成一筆記錄</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4><i class="fas fa-tasks mr-2"></i> 待辦事項應用程式</h4>
+                        <ul>
+                            <li>需要填寫表單</li>
+                            <li>日期時間選擇器操作麻煩</li>
+                            <li>無法理解自然語言表達</li>
+                            <li>優先級需手動設定</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4><i class="fas fa-bell mr-2"></i> 提醒應用程式</h4>
+                        <ul>
+                            <li>設定重複提醒的介面複雜</li>
+                            <li>無法處理複雜的時間表達</li>
+                            <li>多個時間點需分別設定</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4><i class="fas fa-sticky-note mr-2"></i> 筆記應用程式</h4>
+                        <ul>
+                            <li>需要在多個 App 之間切換</li>
+                            <li>分類整理耗時</li>
+                            <li>搜尋功能受限於關鍵字匹配</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 4: User Pain Points -->
+            <section>
+                <h2 class="mb-8">使用者痛點</h2>
+                <div class="max-w-5xl mx-auto">
+                    <div class="bg-red-900 bg-opacity-30 rounded-lg p-8 mb-8 text-left">
+                        <i class="fas fa-quote-left text-3xl mb-4" style="color: #f5576c;"></i>
+                        <p class="text-2xl italic mb-4">
+                            我只是想快速記錄「午餐 150」，為什麼要：打開 App → 選擇類別 → 輸入金額 → 選擇日期 → 確認？
+                        </p>
+                    </div>
+                    <div class="bg-red-900 bg-opacity-30 rounded-lg p-8 text-left">
+                        <i class="fas fa-quote-left text-3xl mb-4" style="color: #f5576c;"></i>
+                        <p class="text-2xl italic mb-4">
+                            筆記、備忘錄沒時間整理，需要的時候花了很多時間在不同層級的目錄中尋找
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 5: Market Opportunity -->
+            <section>
+                <h2 class="mb-8">市場機會</h2>
+                <div class="flex flex-wrap justify-center gap-6">
+                    <div class="stat-box">
+                        <div class="stat-number">7億+</div>
+                        <div class="stat-label">Telegram 活躍用戶</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">18-35歲</div>
+                        <div class="stat-label">主要目標族群</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number"><i class="fas fa-chart-line"></i></div>
+                        <div class="stat-label">對話式 AI 接受度提升</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number"><i class="fas fa-rocket"></i></div>
+                        <div class="stat-label">個人資訊管理需求增長</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 6: Why LLM? -->
+            <section>
+                <h2 class="mb-8">為什麼需要 LLM？</h2>
+                <div class="max-w-5xl mx-auto">
+                    <div class="grid grid-cols-2 gap-8 mb-8">
+                        <div>
+                            <h3 class="text-2xl mb-4 text-red-400"><i class="fas fa-times-circle mr-2"></i> 傳統方式</h3>
+                            <div class="code-block text-left">
+                                <div class="mb-4">
+                                    <span style="color: #4a9eff;">用戶:</span> <span class="code-string">"早餐 80"</span>
+                                </div>
+                                <div class="mb-4">
+                                    <span style="color: #f5576c;">系統:</span> 無法理解 <span class="code-comment">// 需要固定格式</span>
+                                </div>
+                                <div>
+                                    <span style="color: #666;">需要:</span> <span class="code-string">"/expense 80 food"</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl mb-4" style="color: #4ade80;"><i class="fas fa-check-circle mr-2"></i> LLM 方式</h3>
+                            <div class="code-block text-left">
+                                <div class="mb-4">
+                                    <span style="color: #4a9eff;">用戶:</span> <span class="code-string">"早餐 80"</span>
+                                </div>
+                                <div class="mb-4">
+                                    <span style="color: #4ade80;">LLM:</span> 自動理解 ✓
+                                </div>
+                                <div style="color: #9cdcfe;">
+                                    {<br>
+                                    &nbsp;&nbsp;<span class="code-key">"amount"</span>: 80,<br>
+                                    &nbsp;&nbsp;<span class="code-key">"category"</span>: <span class="code-string">"飲食"</span><br>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 7: LLM Capabilities -->
+            <section>
+                <h2 class="mb-8">LLM 能夠解決的問題</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4><i class="fas fa-brain mr-2"></i> 語義理解</h4>
+                        <ul>
+                            <li>理解模糊、口語化的表達</li>
+                            <li>處理多樣的時間表達方式</li>
+                            <li>提取關鍵資訊（金額、日期、類別）</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4><i class="fas fa-comments mr-2"></i> 上下文感知</h4>
+                        <ul>
+                            <li>記住用戶習慣</li>
+                            <li>理解代詞和省略</li>
+                            <li>處理多輪對話</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4><i class="fas fa-layer-group mr-2"></i> 智能分類</h4>
+                        <ul>
+                            <li>自動判斷支出類別</li>
+                            <li>學習用戶的分類習慣</li>
+                            <li>動態適應，不寫死規則</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4><i class="fas fa-filter mr-2"></i> 參數提取</h4>
+                        <ul>
+                            <li>從自然語言中提取結構化資料</li>
+                            <li>處理不完整資訊並合理補全</li>
+                            <li>識別意圖並路由到正確功能</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 8: Scenario 1 - Smart Accounting -->
+            <section>
+                <h2 class="mb-6">場景 1：智能記帳</h2>
+                <div class="telegram-chat">
+                    <div class="telegram-message user">
+                        <div class="telegram-bubble">
+                            今天中午跟同事吃飯花了大概 200 多
+                        </div>
+                    </div>
+                    <div class="telegram-message bot">
+                        <div class="telegram-bubble">
+                            <i class="fas fa-check-circle mr-2" style="color: #4ade80;"></i>
+                            已記錄：午餐 $200 (飲食 - 午餐)
+                        </div>
+                    </div>
+                    <div class="telegram-message user">
+                        <div class="telegram-bubble">
+                            Netflix 又扣款了 390
+                        </div>
+                    </div>
+                    <div class="telegram-message bot">
+                        <div class="telegram-bubble">
+                            <i class="fas fa-check-circle mr-2" style="color: #4ade80;"></i>
+                            已記錄：Netflix 月費 $390 (訂閱 - 串流影音)
+                        </div>
+                    </div>
+                </div>
+                <div class="code-block mt-6">
+                    <span class="code-comment">// LLM 自動提取</span><br>
+                    {<br>
+                    &nbsp;&nbsp;<span class="code-key">"intent"</span>: <span class="code-string">"create_expense"</span>,<br>
+                    &nbsp;&nbsp;<span class="code-key">"amount"</span>: 390,<br>
+                    &nbsp;&nbsp;<span class="code-key">"category"</span>: <span class="code-string">"訂閱"</span>,<br>
+                    &nbsp;&nbsp;<span class="code-key">"subcategory"</span>: <span class="code-string">"串流影音"</span><br>
+                    }
+                </div>
+            </section>
+
+            <!-- Slide 9: Scenario 2 - Time Understanding -->
+            <section>
+                <h2 class="mb-6">場景 2：時間理解</h2>
+                <div class="telegram-chat">
+                    <div class="telegram-message user">
+                        <div class="telegram-bubble">
+                            明天下午 3 點要開會
+                        </div>
+                    </div>
+                    <div class="telegram-message bot">
+                        <div class="telegram-bubble">
+                            <i class="fas fa-calendar-check mr-2" style="color: #4ade80;"></i>
+                            已新增：開會<br>
+                            時間：2025-11-02 15:00
+                        </div>
+                    </div>
+                    <div class="telegram-message user">
+                        <div class="telegram-bubble">
+                            每週一早上 9 點提醒我開週會
+                        </div>
+                    </div>
+                    <div class="telegram-message bot">
+                        <div class="telegram-bubble">
+                            <i class="fas fa-redo mr-2" style="color: #4ade80;"></i>
+                            已設定重複提醒：開週會<br>
+                            每週一 09:00
+                        </div>
+                    </div>
+                    <div class="telegram-message user">
+                        <div class="telegram-bubble">
+                            30 分鐘後提醒我
+                        </div>
+                    </div>
+                    <div class="telegram-message bot">
+                        <div class="telegram-bubble">
+                            <i class="fas fa-clock mr-2" style="color: #4ade80;"></i>
+                            好的，將在 15:30 提醒你
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 10: Scenario 3 - Intent Recognition -->
+            <section>
+                <h2 class="mb-6">場景 3：意圖識別</h2>
+                <div class="telegram-chat">
+                    <div class="telegram-message user">
+                        <div class="telegram-bubble">
+                            今天花了多少
+                        </div>
+                    </div>
+                    <div class="telegram-message bot">
+                        <div class="telegram-bubble">
+                            <i class="fas fa-chart-pie mr-2"></i>
+                            今日支出：$650<br>
+                            • 飲食：$200<br>
+                            • 交通：$100<br>
+                            • 其他：$350
+                        </div>
+                    </div>
+                    <div class="telegram-message user">
+                        <div class="telegram-bubble">
+                            記住我的車位是 B3-25
+                        </div>
+                    </div>
+                    <div class="telegram-message bot">
+                        <div class="telegram-bubble">
+                            <i class="fas fa-save mr-2" style="color: #4ade80;"></i>
+                            已儲存備忘錄：車位 B3-25
+                        </div>
+                    </div>
+                    <div class="telegram-message user">
+                        <div class="telegram-bubble">
+                            週五前要完成報告
+                        </div>
+                    </div>
+                    <div class="telegram-message bot">
+                        <div class="telegram-bubble">
+                            <i class="fas fa-tasks mr-2" style="color: #4ade80;"></i>
+                            已新增待辦：完成報告<br>
+                            截止日期：2025-11-07
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 11: System Architecture -->
+            <section>
+                <h2 class="mb-6">系統架構</h2>
+                <div class="arch-flow">
+                    <!-- Row 1: Telegram Client -->
+                    <div class="arch-row">
+                        <div class="arch-box-large">
+                            <i class="fab fa-telegram text-3xl mb-2"></i>
+                            <div><strong>Telegram 用戶端</strong></div>
+                            <div class="text-sm mt-2">用戶透過 Telegram 發送訊息</div>
+                        </div>
+                    </div>
+
+                    <div class="arch-arrow"><i class="fas fa-arrow-down"></i></div>
+
+                    <!-- Row 2: Bot API + Router -->
+                    <div class="arch-row">
+                        <div class="arch-box-small">
+                            <i class="fas fa-robot text-2xl mb-2"></i>
+                            <div><strong>Telegram Bot API</strong></div>
+                            <div class="text-sm mt-1">接收訊息、發送回應</div>
+                        </div>
+                        <div class="arch-box-small">
+                            <i class="fas fa-route text-2xl mb-2"></i>
+                            <div><strong>Message Router</strong></div>
+                            <div class="text-sm mt-1">訊息預處理、路由分發</div>
+                        </div>
+                    </div>
+
+                    <div class="arch-arrow"><i class="fas fa-arrow-down"></i></div>
+
+                    <!-- Row 3: LLM Recognition (Highlight) -->
+                    <div class="arch-row">
+                        <div class="arch-box-large highlight">
+                            <i class="fas fa-brain text-3xl mb-2"></i>
+                            <div><strong>LLM Intent Recognition ⭐</strong></div>
+                            <div class="text-sm mt-2">意圖識別 | 參數提取 | 類別判斷 | 時間解析</div>
+                        </div>
+                    </div>
+
+                    <div class="arch-arrow"><i class="fas fa-arrow-down"></i></div>
+
+                    <!-- Row 4: Business Logic + Database -->
+                    <div class="arch-row">
+                        <div class="arch-box-small">
+                            <i class="fas fa-cogs text-2xl mb-2"></i>
+                            <div><strong>Business Logic</strong></div>
+                            <div class="text-sm mt-1">Memo | Todo | Event<br>Accounting | Reminder</div>
+                        </div>
+                        <div class="arch-box-small">
+                            <i class="fas fa-database text-2xl mb-2"></i>
+                            <div><strong>PostgreSQL</strong></div>
+                            <div class="text-sm mt-1">資料持久化<br>背景任務調度</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 12: Tech Stack -->
+            <section>
+                <h2 class="mb-8">技術架構</h2>
+                <div class="max-w mx-auto">
+                    <div class="grid grid-cols-3 gap-12">
+                        <div class="text-center">
+                            <i class="fab fa-python text-7xl mb-4" style="color: #4a9eff;"></i>
+                            <h3 class="text-2xl mb-2" style="white-space: nowrap;">Python 3.12+</h3>
+                            <p class="text-lg text-gray-400">後端語言</p>
+                        </div>
+                        <div class="text-center">
+                            <i class="fas fa-database text-7xl mb-4" style="color: #4a9eff;"></i>
+                            <h3 class="text-2xl mb-2" style="white-space: nowrap;">PostgreSQL 14+</h3>
+                            <p class="text-lg text-gray-400">資料庫</p>
+                        </div>
+                        <div class="text-center">
+                            <i class="fas fa-brain text-7xl mb-4" style="color: #f5576c;"></i>
+                            <h3 class="text-2xl mb-2" style="white-space: nowrap;">Anthropic SDK</h3>
+                            <p class="text-lg text-gray-400">LLM 整合</p>
+                        </div>
+                    </div>
+                    <div class="mt-12 bg-white bg-opacity-10 rounded-lg p-6">
+                        <h3 class="text-2xl mb-4" style="white-space: nowrap;"><i class="fas fa-clock mr-3"></i>Background Jobs</h3>
+                        <p class="text-lg">定時任務：事件提醒 | 預算警告 | 逾期通知</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 13: Core Features -->
+            <section>
+                <h2 class="mb-8">核心功能模組</h2>
+                <div class="grid grid-cols-3 gap-6 max-w-6xl mx-auto">
+                    <div class="feature-card">
+                        <h4><i class="fas fa-sticky-note mr-2"></i> 備忘錄系統</h4>
+                        <ul>
+                            <li>快速記錄資訊</li>
+                            <li>全文搜尋</li>
+                            <li>標籤分類</li>
+                            <li>LLM 自動提取關鍵字</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4><i class="fas fa-tasks mr-2"></i> 待辦事項管理</h4>
+                        <ul>
+                            <li>自動識別截止日期</li>
+                            <li>優先級判斷</li>
+                            <li>逾期提醒</li>
+                            <li>完成狀態追蹤</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4><i class="fas fa-calendar mr-2"></i> 行事曆與事件</h4>
+                        <ul>
+                            <li>支援單次和重複事件</li>
+                            <li>服藥提醒</li>
+                            <li>彈性的通知設定</li>
+                            <li>行程查詢</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card" style="grid-column: span 2;">
+                        <h4><i class="fas fa-wallet mr-2"></i> 智能記帳系統 ⭐</h4>
+                        <ul>
+                            <li>LLM 動態類別判斷：不寫死類別，根據內容自動分類</li>
+                            <li>類別合併機制：避免類別碎片化</li>
+                            <li>支出統計與分析</li>
+                            <li>預算管理與警告</li>
+                            <li>定期交易自動記錄</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4><i class="fas fa-bell mr-2"></i> 提醒系統</h4>
+                        <ul>
+                            <li>一次性提醒</li>
+                            <li>重複提醒</li>
+                            <li>倒數計時提醒</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 14: Innovation Features -->
+            <section>
+                <h2 class="mb-8">創新特色</h2>
+                <div class="max-w-5xl mx-auto">
+                    <div class="feature-card mb-6">
+                        <h4><i class="fas fa-graduation-cap mr-3"></i> 1. 零學習成本</h4>
+                        <ul class="text-xl">
+                            <li>不需要記憶任何指令</li>
+                            <li>像跟人說話一樣自然</li>
+                            <li>適合所有年齡層使用</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card mb-6">
+                        <h4><i class="fas fa-brain mr-3"></i> 2. LLM 驅動的智能分類</h4>
+                        <ul class="text-xl">
+                            <li>自動學習用戶的分類習慣</li>
+                            <li>動態調整，不寫死規則</li>
+                            <li>隨著使用越來越精準</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4><i class="fas fa-puzzle-piece mr-3"></i> 3. 跨功能整合</h4>
+                        <ul class="text-xl">
+                            <li>在同一個對話介面完成所有操作</li>
+                            <li>無需在多個 App 之間切換</li>
+                            <li>資料互通（如：待辦可轉為行事曆事件）</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 15: Expected Impact -->
+            <section>
+                <h2 class="mb-8">預期影響</h2>
+                <div class="max-w-5xl mx-auto">
+                    <div class="grid grid-cols-2 gap-8">
+                        <div class="feature-card">
+                            <h4><i class="fas fa-rocket mr-3"></i> 提升效率</h4>
+                            <ul class="text-xl">
+                                <li>降低記帳門檻，提高記帳意願</li>
+                                <li>自然語言介面節省操作時間</li>
+                                <li>統一平台減少 App 切換</li>
+                            </ul>
+                        </div>
+                        <div class="feature-card">
+                            <h4><i class="fas fa-seedling mr-3"></i> 習慣培養</h4>
+                            <ul class="text-xl">
+                                <li>簡單的互動方式有助於培養記帳習慣</li>
+                                <li>自動提醒協助任務管理</li>
+                                <li>數據統計幫助反思消費行為</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mt-12 text-center">
+                        <div class="inline-block bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg p-8">
+                            <p class="text-3xl font-bold">
+                                讓個人管理變得像聊天一樣簡單
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 16: Thank You -->
+            <section>
+                <div class="flex flex-col items-center justify-center h-full">
+                    <i class="fab fa-telegram text-9xl mb-8" style="color: #4a9eff;"></i>
+                    <h1 class="mb-6">Thank You</h1>
+                    <h3 class="text-3xl" style="color: #4a9eff;">
+                        <i class="fas fa-envelope mr-3"></i>
+                        Questions?
+                    </h3>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reveal.js"></script>
+    <script>
+        Reveal.initialize({
+            width: 1920,
+            height: 1080,
+            margin: 0.04,
+            transition: 'none',
+            transitionSpeed: 'fast',
+            backgroundTransition: 'none',
+            hash: true,
+            controls: true,
+            progress: true,
+            center: true,
+            slideNumber: 'c/t'
+        });
+    </script>
+</body>
+</html>
