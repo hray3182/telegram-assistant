@@ -4,9 +4,9 @@ const server = Bun.serve({
   fetch(req) {
     const url = new URL(req.url);
 
-    // Serve presentation.html by default
+    // Serve index.html by default
     if (url.pathname === "/" || url.pathname === "/index.html") {
-      return new Response(Bun.file("presentation.html"));
+      return new Response(Bun.file("index.html"));
     }
 
     // Serve static files
